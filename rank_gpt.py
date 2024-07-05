@@ -142,14 +142,14 @@ def run_retriever(topics, searcher, qrels=None, k=100, qid=None):
 
 def get_prefix_prompt(query, num):
     return [{'role': 'system',
-             'content': "You are RankGPT, an intelligent assistant that can rank passages based on their relevancy to the query."},
+             'content': "Sen, yanıtları sorguyla ilgilerine göre sıralayabilen bir asistan olan RankGPT'sin."},
             {'role': 'user',
-             'content': f"I will provide you with {num} passages, each indicated by number identifier []. \nRank the passages based on their relevance to query: {query}."},
-            {'role': 'assistant', 'content': 'Okay, please provide the passages.'}]
+             'content': f"Sana her biri [] sayi ile tanımlayıcı ile gösterilen {num} yanıt sağlayacağım.\nYanıtları sorguyla ilgilerine göre sıralayın: {query}"},
+            {'role': 'assistant', 'content': 'Tamam, lütfen yanıtları sağlayın.'}]
 
 
 def get_post_prompt(query, num):
-    return f"Search Query: {query}. \nRank the {num} passages above based on their relevance to the search query. The passages should be listed in descending order using identifiers. The most relevant passages should be listed first. The output format should be [] > [], e.g., [1] > [2]. Only response the ranking results, do not say any word or explain."
+    return f"Arama Sorgusu: {query}. \nYukarıdaki {num} yanıtı arama sorgusuyla ilgilerine göre sıralayın. Yanıtlar, tanımlayıcılar kullanılarak azalan sırada listelenmelidir. En alakalı yanıtlar önce listelenmelidir. Çıktı biçimi [] > [] olmalıdır, örneğin, [1] > [2]. Sadece sıralama sonuçlarına yanıt verin, herhangi bir kelime söylemeyin veya açıklama yapmayın."
 
 
 def create_permutation_instruction(item=None, rank_start=0, rank_end=100, model_name='gpt-3.5-turbo'):
@@ -168,7 +168,7 @@ def create_permutation_instruction(item=None, rank_start=0, rank_end=100, model_
         # For Japanese should cut by character: content = content[:int(max_length)]
         content = ' '.join(content.split()[:int(max_length)])
         messages.append({'role': 'user', 'content': f"[{rank}] {content}"})
-        messages.append({'role': 'assistant', 'content': f'Received passage [{rank}].'})
+        messages.append({'role': 'assistant', 'content': f'Yanıt [{rank}] alındı.'})
     messages.append({'role': 'user', 'content': get_post_prompt(query, num)})
 
     return messages
