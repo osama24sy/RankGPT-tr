@@ -73,6 +73,28 @@ class ClaudeClient:
             completion = completion.completion
         return completion
 
+class LocalLLMClient:
+    def __init__(self, model_path, tokenizer_path) -> None:
+        from transformers import pipeline, AutoModelForCausalLM, AutoTokenizer
+        self.model = AutoModelForCausalLM.from_pretrained(model_path)
+        self.tokenizer = AutoTokenizer.from_pretrained(tokenizer_path)
+        self.pipeline = pipeline('text-generation', model=self.model, tokenizer=self.tokenizer)
+
+    def chat(self, messages, return_text=True, max_tokens=300, *args, **kwargs):
+        system = ' '.join([turn['content'] for turn in messages if turn['role'] == 'system'])
+        messages = [turn for turn in messages if turn['role'] != 'system']
+        if len(system) == 0:
+            system = None
+        completion = self.pipeline(messages, system=system, max_tokens=max_tokens, *args, **kwargs)
+        if return_text:
+            completion = completion.content[0].text
+        return completion
+    
+    def text(self, max_tokens=None, return_text=True, *args, **kwargs):
+        completion = self.pipeline(max_tokens_to_sample=max_tokens, *args, **kwargs)
+        if return_text:
+            completion = completion.completion
+        return completion
 
 class LitellmClient:
     #  https://github.com/BerriAI/litellm
